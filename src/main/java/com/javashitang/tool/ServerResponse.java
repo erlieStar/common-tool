@@ -1,95 +1,53 @@
 package com.javashitang.tool;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /** 注解的作用是序列化json时，如果是null对象，key也会消失 */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerResponse<T> implements Serializable{
+public class ServerResponse implements Serializable{
 
     private static final long serialVersionUID = 5079806402898956068L;
 
-    private int status;
-    private String msg;
-    private T data;
+    private ServerResponse.Status status;
+    private Map<String, Object> property;
+    private List<Object> data;
 
-    public ServerResponse(int status) {
-        this.status = status;
+    public ServerResponse(GlobalStatus status) {
+        this.status = new Status(status);
     }
 
-    public ServerResponse(int status, String msg) {
-        this.status = status;
-        this.msg = msg;
+    public ServerResponse(GlobalStatus status, String msg) {
+        this.status = new Status(status, msg);
     }
 
-    public ServerResponse(int status, T data) {
-        this.status = status;
-        this.data = data;
-    }
-
-    public ServerResponse(int status, String msg, T data) {
-        this.status = status;
-        this.msg = msg;
-        this.data = data;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    @JsonIgnore
-    /** 不在json序列化的结果中 */
     public boolean isSuccess() {
-        return this.status == ResponseCode.SUCCESS.getCode();
+        return this.status.compare(GlobalStatus.SUCCESS);
     }
 
-    public static <T> ServerResponse success() {
-        return new ServerResponse(ResponseCode.SUCCESS.getCode());
+    public class Status implements Serializable {
+
+        private static final long serialVersionUID = 5079806402898956068L;
+
+        private GlobalStatus status;
+        private String desc;
+
+        public Status (GlobalStatus status) {
+            this.status = status;
+            this.desc = status.name();
+        }
+
+        public Status (GlobalStatus status, String message) {
+            this.status = status;
+            this.desc = message;
+        }
+
+        public boolean compare(GlobalStatus input) {
+            return this.status == input;
+        }
     }
 
-    public static <T> ServerResponse successMsg(String msg) {
-        return new ServerResponse(ResponseCode.SUCCESS.getCode(), msg);
-    }
-
-    public static <T> ServerResponse successData(T data) {
-        return new ServerResponse(ResponseCode.SUCCESS.getCode(), data);
-    }
-
-    public static <T> ServerResponse successMsgData(String msg, T data) {
-        return new ServerResponse(ResponseCode.SUCCESS.getCode(), msg, data);
-    }
-
-    public static <T> ServerResponse error() {
-        return new ServerResponse(ResponseCode.ERROR.getCode(), ResponseCode.ERROR.getDesc());
-    }
-
-    public static <T> ServerResponse errorMsg(String msg) {
-        return new ServerResponse(ResponseCode.ERROR.getCode(), msg);
-    }
-
-    public static <T> ServerResponse errorCodeMsg(int errorCode, String msg) {
-        return new ServerResponse(errorCode, msg);
-    }
 }
