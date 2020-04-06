@@ -3,6 +3,8 @@ package com.javashitang.tool;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,72 @@ public class ServerResponse implements Serializable{
 
     public boolean isSuccess() {
         return this.status.compare(GlobalStatus.SUCCESS);
+    }
+
+    public Map<String, Object> getProperty() {
+        return this.property;
+    }
+
+    public void setProperty(String key, Object object) {
+        if (this.property == null) {
+            this.property = new HashMap<>();
+        }
+        this.property.put(key, object);
+    }
+
+    public void setProperty(Map<String, Object> property) {
+        this.property = property;
+    }
+
+    public List<Object> getData() {
+        return this.data;
+    }
+
+    public <T> List<T> getData(Class<T> clazz) {
+        return (List)data;
+    }
+
+    public <T> void setData(List<T> data) {
+        this.data = (List)data;
+    }
+
+    public void addObject(Object object) {
+        if (this.data == null) {
+            this.data = new ArrayList<>();
+        }
+        this.data.add(data);
+    }
+
+    public static ServerResponse newSuccess() {
+        return new ServerResponse(GlobalStatus.SUCCESS);
+    }
+
+    public static ServerResponse newSuccess(String message) {
+        return new ServerResponse(GlobalStatus.SUCCESS, message);
+    }
+
+    public static ServerResponse newError() {
+        return new ServerResponse(GlobalStatus.ERROR);
+    }
+
+    public static ServerResponse newError(String message) {
+        return new ServerResponse(GlobalStatus.ERROR, message);
+    }
+
+    public static ServerResponse newParamInvalid() {
+        return new ServerResponse(GlobalStatus.PARAM_INVALID);
+    }
+
+    public static ServerResponse newParamInvalid(String message) {
+        return new ServerResponse(GlobalStatus.PARAM_INVALID, message);
+    }
+
+    public static ServerResponse newServerResponse(GlobalStatus status) {
+        return new ServerResponse(status);
+    }
+
+    public static ServerResponse newServerResponse(GlobalStatus status, String message) {
+        return new ServerResponse(status, message);
     }
 
     public class Status implements Serializable {
