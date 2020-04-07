@@ -39,7 +39,7 @@ public class JsonConvert {
         try {
             return obj instanceof String ? (String) obj : objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj);
         } catch (Exception e) {
-            logger.warn("Parse Object to String error", e);
+            logger.warn("parse object to string error", e);
             return null;
         }
     }

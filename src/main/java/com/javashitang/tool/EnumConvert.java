@@ -22,6 +22,7 @@ public class EnumConvert {
                 return null;
             }
             Field field = enumType.getDeclaredField("value");
+            field.setAccessible(true);
             for (T t : allEnums) {
                 if (value == field.getInt(t)) {
                     return t;
@@ -47,6 +48,7 @@ public class EnumConvert {
                 return null;
             }
             Field field = enumType.getDeclaredField("name");
+            field.setAccessible(true);
             for (T t : allEnums) {
                 if (name.equals(field.get(t))) {
                     return t;
