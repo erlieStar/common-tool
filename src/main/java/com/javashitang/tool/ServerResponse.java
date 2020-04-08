@@ -1,6 +1,7 @@
 package com.javashitang.tool;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.javashitang.tool.page.PageInfo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class ServerResponse implements Serializable{
     private static final long serialVersionUID = 5079806402898956068L;
 
     private ServerResponse.Status status;
+    private PageInfo pageInfo;
     private Map<String, Object> property;
     private List<Object> data;
 
