@@ -17,8 +17,11 @@ public class OperStatus implements Serializable{
     private static final long serialVersionUID = 5079806402898956068L;
 
     private OperStatus.Status status;
-    private PageInfo pageInfo;
+    // 分页数据
+    private PageInfo page;
+    // 键值对
     private Map<String, Object> property;
+    // 列表数据
     private List<Object> data;
 
     public OperStatus(GlobalStatus status) {
@@ -67,8 +70,8 @@ public class OperStatus implements Serializable{
         this.data.add(data);
     }
 
-    public void setPageInfo(PageInfo pageInfo) {
-        this.pageInfo = pageInfo;
+    public void setPage(PageInfo page) {
+        this.page = page;
     }
 
     public void setPageInfo(int curPage, int pageSize, int totalItem) {

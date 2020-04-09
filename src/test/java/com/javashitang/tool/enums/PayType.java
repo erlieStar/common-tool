@@ -1,7 +1,5 @@
 package com.javashitang.tool.enums;
 
-import com.sun.tools.classfile.ConstantPool;
-
 public enum PayType {
 
     ONLINE(1, "线上"),
