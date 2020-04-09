@@ -10,7 +10,6 @@ public class PageInfo implements Serializable {
     private int totalPage;
     private int pageSize;
     private int curPage;
-    private int maxLife = 1;
 
     public int getTotalItem() {
         return totalItem;
@@ -44,17 +43,31 @@ public class PageInfo implements Serializable {
         this.curPage = curPage;
     }
 
-    public int getMaxLife() {
-        return maxLife;
-    }
-
-    public void setMaxLife(int maxLife) {
-        this.maxLife = maxLife;
-    }
-
     public void setTotalPage(int pageSize, int totalItem) {
         if (pageSize != 0 & totalItem != 0) {
-            this.totalPage = (totalItem - 1) / totalPage + 1;
+            this.totalPage = (totalItem - 1) / pageSize + 1;
         }
+    }
+
+
+    public static PageInfo build(int curPage, int pageSize, int totalItem) {
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setCurPage(curPage);
+        pageInfo.setPageSize(pageSize);
+        pageInfo.setTotalItem(totalItem);
+        if (pageSize != 0 && totalItem != 0) {
+            pageInfo.totalPage = (totalItem - 1) / pageSize + 1;
+        }
+        return pageInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "PageInfo{" +
+                "totalItem=" + totalItem +
+                ", totalPage=" + totalPage +
+                ", pageSize=" + pageSize +
+                ", curPage=" + curPage +
+                '}';
     }
 }
