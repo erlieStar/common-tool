@@ -2,6 +2,7 @@ package com.javashitang.tool;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.javashitang.tool.page.PageInfo;
+import sun.jvm.hotspot.debugger.Page;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,20 +12,20 @@ import java.util.Map;
 
 /** 注解的作用是序列化json时，如果是null对象，key也会消失 */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerResponse implements Serializable{
+public class OperStatus implements Serializable{
 
     private static final long serialVersionUID = 5079806402898956068L;
 
-    private ServerResponse.Status status;
+    private OperStatus.Status status;
     private PageInfo pageInfo;
     private Map<String, Object> property;
     private List<Object> data;
 
-    public ServerResponse(GlobalStatus status) {
+    public OperStatus(GlobalStatus status) {
         this.status = new Status(status);
     }
 
-    public ServerResponse(GlobalStatus status, String msg) {
+    public OperStatus(GlobalStatus status, String msg) {
         this.status = new Status(status, msg);
     }
 
@@ -66,36 +67,48 @@ public class ServerResponse implements Serializable{
         this.data.add(data);
     }
 
-    public static ServerResponse newSuccess() {
-        return new ServerResponse(GlobalStatus.SUCCESS);
+    public void setPageInfo(PageInfo pageInfo) {
+        this.pageInfo = pageInfo;
     }
 
-    public static ServerResponse newSuccess(String message) {
-        return new ServerResponse(GlobalStatus.SUCCESS, message);
+    public void setPageInfo(int curPage, int pageSize, int totalItem) {
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setCurPage(curPage);
+        pageInfo.setPageSize(pageSize);
+        pageInfo.setTotalItem(totalItem);
+        pageInfo.setTotalPage(pageSize, totalItem);
     }
 
-    public static ServerResponse newError() {
-        return new ServerResponse(GlobalStatus.ERROR);
+    public static OperStatus newSuccess() {
+        return new OperStatus(GlobalStatus.SUCCESS);
     }
 
-    public static ServerResponse newError(String message) {
-        return new ServerResponse(GlobalStatus.ERROR, message);
+    public static OperStatus newSuccess(String message) {
+        return new OperStatus(GlobalStatus.SUCCESS, message);
     }
 
-    public static ServerResponse newParamInvalid() {
-        return new ServerResponse(GlobalStatus.PARAM_INVALID);
+    public static OperStatus newError() {
+        return new OperStatus(GlobalStatus.ERROR);
     }
 
-    public static ServerResponse newParamInvalid(String message) {
-        return new ServerResponse(GlobalStatus.PARAM_INVALID, message);
+    public static OperStatus newError(String message) {
+        return new OperStatus(GlobalStatus.ERROR, message);
     }
 
-    public static ServerResponse newServerResponse(GlobalStatus status) {
-        return new ServerResponse(status);
+    public static OperStatus newParamInvalid() {
+        return new OperStatus(GlobalStatus.PARAM_INVALID);
     }
 
-    public static ServerResponse newServerResponse(GlobalStatus status, String message) {
-        return new ServerResponse(status, message);
+    public static OperStatus newParamInvalid(String message) {
+        return new OperStatus(GlobalStatus.PARAM_INVALID, message);
+    }
+
+    public static OperStatus newServerResponse(GlobalStatus status) {
+        return new OperStatus(status);
+    }
+
+    public static OperStatus newServerResponse(GlobalStatus status, String message) {
+        return new OperStatus(status, message);
     }
 
     public class Status implements Serializable {

@@ -1,5 +1,6 @@
 package com.javashitang.tool.page;
 
+import com.javashitang.tool.OperStatus;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -35,11 +36,40 @@ public class PageHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(PageHelper.class);
 
-    private static ThreadLocal<PageInfo> pageInfo = new ThreadLocal<>();
+    private static ThreadLocal<PageInfo> pageInfoThreadLocal = new ThreadLocal<>();
 
     public static boolean canBuildCountSql(String originSql) {
         Matcher m = PageHelper.invalidSql.matcher(originSql);
         return !m.find();
+    }
+
+    public static void preparePageRequest(int start, int size, int maxCount) {
+        start = start > 0 ? start : 1;
+        size = size > maxCount ? maxCount: size;
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setCurPage(start);
+        pageInfo.setPageSize(size);
+        pageInfoThreadLocal.set(pageInfo);
+    }
+
+    public static void preparePageRequest(int start, int size) {
+        preparePageRequest(start, size, 500);
+    }
+
+    public static PageInfo popAfterAll() {
+        PageInfo pageInfo = pageInfoThreadLocal.get();
+        pageInfoThreadLocal.remove();
+        pageInfo.setTotalPage(pageInfo.getPageSize(), pageInfo.getTotalItem());
+        return pageInfo;
+    }
+
+    public static OperStatus clearAfterAll(OperStatus operStatus) {
+        PageInfo pageInfo = pageInfoThreadLocal.get();
+        pageInfoThreadLocal.remove();
+        if (operStatus != null && pageInfo != null) {
+            operStatus.setPageInfo(pageInfo.getCurPage(), pageInfo.getPageSize(), pageInfo.getTotalItem());
+        }
+        return operStatus;
     }
 
     @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
@@ -47,8 +77,8 @@ public class PageHelper {
 
         @Override
         public Object intercept(Invocation invocation) throws Throwable {
-            PageInfo pageInfo = PageHelper.pageInfo.get();
-            if (pageInfo == null || pageInfo.getMaxLife() <= 0) {
+            PageInfo pageInfo = PageHelper.pageInfoThreadLocal.get();
+            if (pageInfo == null) {
                 // 执行原始的方法
                 return invocation.proceed();
             }
@@ -64,12 +94,16 @@ public class PageHelper {
 
             // 不满足查询数量的sql
             if (!PageHelper.canBuildCountSql(sql)) {
-                PageHelper.pageInfo.remove();
+                PageHelper.pageInfoThreadLocal.remove();
                 return invocation.proceed();
             }
             String pageSql = this.buildPageSql(sql, pageInfo);
+            // 重写分页sql
             SystemMetaObject.forObject(boundSql).setValue("sql", pageSql);
-
+            Connection connection = (Connection) invocation.getArgs()[0];
+            int count = this.queryItemCount(sql, connection, statementHandler, boundSql);
+            pageInfo.setTotalItem(count);
+            pageInfo.setTotalPage(pageInfo.getPageSize(), pageInfo.getTotalItem());
             // 将执行权交给下一个插件
             try {
                 return invocation.proceed();
@@ -78,7 +112,7 @@ public class PageHelper {
                 throw e;
             } finally {
                 // 避免内存溢出
-                PageHelper.pageInfo.remove();
+                PageHelper.pageInfoThreadLocal.remove();
             }
         }
 
@@ -93,13 +127,19 @@ public class PageHelper {
         }
 
 
+        /**
+         * 构建分页的sql
+         */
         private String buildPageSql(String originSql, PageInfo pageInfo) {
             return new StringBuilder().append(originSql).append(" limit ")
-                    .append(pageInfo.getPageSize() * (pageInfo.getNextPage() - 1))
+                    .append(pageInfo.getPageSize() * (pageInfo.getCurPage() - 1))
                     .append(" , ").append(pageInfo.getPageSize()).toString();
         }
 
 
+        /**
+         * 查询总数
+         */
         private int queryItemCount(String sql, Connection connection, StatementHandler statementHandler,
                                    BoundSql boundSql) {
             String countSql = buildPageCountSql(sql);
@@ -109,10 +149,8 @@ public class PageHelper {
             try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
                 statementHandler.getParameterHandler().setParameters(countStmt);
                 int totalCount = 0;
-                long cost = System.currentTimeMillis();
                 try (ResultSet rs = countStmt.executeQuery()) {
                     if (rs.next()) {
-                        cost = cost - System.currentTimeMillis();
                         totalCount = rs.getInt(1);
                     }
                     return totalCount;
@@ -129,6 +167,9 @@ public class PageHelper {
     }
 
 
+    /**
+     * 构建查询总数的sql
+     */
     public static String buildPageCountSql(final String originSql) {
         CCJSqlParser sqlParser = new CCJSqlParser(new StringReader(originSql));
         String inputSql = null;

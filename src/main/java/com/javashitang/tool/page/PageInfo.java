@@ -9,12 +9,8 @@ public class PageInfo implements Serializable {
     private int totalItem;
     private int totalPage;
     private int pageSize;
-    private int nextPage;
     private int curPage;
     private int maxLife = 1;
-    private boolean useCache = true;
-    private boolean queryCount;
-
 
     public int getTotalItem() {
         return totalItem;
@@ -40,14 +36,6 @@ public class PageInfo implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public int getNextPage() {
-        return nextPage;
-    }
-
-    public void setNextPage(int nextPage) {
-        this.nextPage = nextPage;
-    }
-
     public int getCurPage() {
         return curPage;
     }
@@ -64,19 +52,9 @@ public class PageInfo implements Serializable {
         this.maxLife = maxLife;
     }
 
-    public boolean isUseCache() {
-        return useCache;
-    }
-
-    public void setUseCache(boolean useCache) {
-        this.useCache = useCache;
-    }
-
-    public boolean isQueryCount() {
-        return queryCount;
-    }
-
-    public void setQueryCount(boolean queryCount) {
-        this.queryCount = queryCount;
+    public void setTotalPage(int pageSize, int totalItem) {
+        if (pageSize != 0 & totalItem != 0) {
+            this.totalPage = (totalItem - 1) / totalPage + 1;
+        }
     }
 }
