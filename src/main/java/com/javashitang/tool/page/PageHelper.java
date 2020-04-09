@@ -17,6 +17,9 @@ import org.slf4j.LoggerFactory;
 import java.io.StringReader;
 import java.lang.Object;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -103,7 +106,23 @@ public class PageHelper {
             if (countSql == null) {
                 return -1;
             }
-            Object parameterObject = boundSql.getParameterObject();
+            try (PreparedStatement countStmt = connection.prepareStatement(countSql)) {
+                statementHandler.getParameterHandler().setParameters(countStmt);
+                int totalCount = 0;
+                long cost = System.currentTimeMillis();
+                try (ResultSet rs = countStmt.executeQuery()) {
+                    if (rs.next()) {
+                        cost = cost - System.currentTimeMillis();
+                        totalCount = rs.getInt(1);
+                    }
+                    return totalCount;
+                } catch (SQLException e) {
+                    logger.error("page helper failed execute sql", sql);
+                }
+            } catch (SQLException e) {
+                logger.error("page helper failed get countStmt");
+            }
+            logger.error("page helper failed get sql count: {}", sql);
             return 0;
         }
 
@@ -133,7 +152,7 @@ public class PageHelper {
                 inputSql = String.format("SELECT COUNT(*) AS GTestXCountH FROM （%s） TMP", inputSql);
             }
         } catch (Exception e) {
-            logger.error("failed parser sql: {}", originSql, e);
+            logger.error("page helper failed parser sql: {}", originSql, e);
         }
         return inputSql;
     }
