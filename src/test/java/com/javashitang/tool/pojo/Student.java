@@ -15,4 +15,20 @@ public class Student {
     @Max(value = 18, message = "年龄最大为20岁")
     private Integer age;
 
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
 }

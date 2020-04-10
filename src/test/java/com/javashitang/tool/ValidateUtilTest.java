@@ -12,6 +12,10 @@ public class ValidateUtilTest {
     public void validate() {
         Student student = new Student();
         String message = ValidateUtil.validate(student);
-        assertEquals(message, "名字不能为空");
+        assertNotNull(message);
+        student.setName("a");
+        student.setAge(17);
+        message = ValidateUtil.validate(student);
+        assertNull(message);
     }
 }
