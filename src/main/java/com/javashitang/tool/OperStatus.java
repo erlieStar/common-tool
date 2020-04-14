@@ -2,7 +2,6 @@ package com.javashitang.tool;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.javashitang.tool.page.PageInfo;
-import sun.jvm.hotspot.debugger.Page;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,6 +73,10 @@ public class OperStatus implements Serializable{
         this.page = page;
     }
 
+    public Status getStatus() {
+        return status;
+    }
+
     public void setPageInfo(int curPage, int pageSize, int totalItem) {
         PageInfo pageInfo = new PageInfo();
         pageInfo.setCurPage(curPage);
@@ -123,7 +126,7 @@ public class OperStatus implements Serializable{
 
         public Status (GlobalStatus status) {
             this.status = status;
-            this.desc = status.name();
+            this.desc = status.name;
         }
 
         public Status (GlobalStatus status, String message) {
@@ -133,6 +136,14 @@ public class OperStatus implements Serializable{
 
         public boolean compare(GlobalStatus input) {
             return this.status == input;
+        }
+
+        public int getCode() {
+            return this.status.value;
+        }
+
+        public String getDesc() {
+            return desc;
         }
     }
 

@@ -8,12 +8,11 @@ public enum GlobalStatus {
     RESULT_EMPTY(3, "结果为空"),
     PARAM_INVALID(4, "请求参数非法");
 
-    private final int value;
-    private final String name;
+    public final int value;
+    public final String name;
 
     private GlobalStatus(int value, String name) {
         this.value = value;
         this.name = name;
     }
-
 }
