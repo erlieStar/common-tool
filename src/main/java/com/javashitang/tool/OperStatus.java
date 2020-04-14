@@ -73,6 +73,10 @@ public class OperStatus implements Serializable{
         this.page = page;
     }
 
+    public PageInfo getPage() {
+        return this.page;
+    }
+
     public Status getStatus() {
         return status;
     }
