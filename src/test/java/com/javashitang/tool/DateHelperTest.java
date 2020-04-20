@@ -5,8 +5,6 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static org.junit.Assert.*;
-
 public class DateHelperTest {
 
     @Test
@@ -27,5 +25,8 @@ public class DateHelperTest {
 
     @Test
     public void date2Str() {
+    }
+
+    public static class domain {
     }
 }
