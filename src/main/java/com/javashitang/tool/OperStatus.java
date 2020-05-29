@@ -1,100 +1,75 @@
 package com.javashitang.tool;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.javashitang.tool.page.PageInfo;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /** 注解的作用是序列化json时，如果是null对象，key也会消失 */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class OperStatus implements Serializable{
+public class OperStatus<T> implements Serializable {
 
     private static final long serialVersionUID = 5079806402898956068L;
 
-    private OperStatus.Status status;
-    // 分页数据
-    private PageInfo page;
-    // 键值对
-    private Map<String, Object> property;
-    // 列表数据
-    private List<Object> data;
+    private String msg;
+
+    private Integer code;
+
+    private T data;
+
+    public OperStatus() {}
 
     public OperStatus(GlobalStatus status) {
-        this.status = new Status(status);
+        this.code = status.value;
+        this.msg = status.name;
     }
 
     public OperStatus(GlobalStatus status, String msg) {
-        this.status = new Status(status, msg);
+        this.code = status.value;
+        this.msg = msg;
+    }
+
+    public boolean isCodeEq(GlobalStatus compare) {
+        return this.code.equals(compare.value);
     }
 
     public boolean isSuccess() {
-        return this.status.compare(GlobalStatus.SUCCESS);
+        return this.code.equals(GlobalStatus.SUCCESS.value);
     }
 
-    public Map<String, Object> getProperty() {
-        return this.property;
+    public T getData() {
+        return data;
     }
 
-    public void setProperty(String key, Object object) {
-        if (this.property == null) {
-            this.property = new HashMap<>();
-        }
-        this.property.put(key, object);
+    public void setData(T data) {
+        this.data = data;
     }
 
-    public void setProperty(Map<String, Object> property) {
-        this.property = property;
+    public String getMsg() {
+        return msg;
     }
 
-    public List<Object> getData() {
-        return this.data;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
-    public <T> List<T> getData(Class<T> clazz) {
-        return (List)data;
+    public Integer getCode() {
+        return code;
     }
 
-    public <T> void setData(List<T> data) {
-        this.data = (List)data;
-    }
-
-    public void addObject(Object object) {
-        if (this.data == null) {
-            this.data = new ArrayList<>();
-        }
-        this.data.add(data);
-    }
-
-    public void setPage(PageInfo page) {
-        this.page = page;
-    }
-
-    public PageInfo getPage() {
-        return this.page;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setPageInfo(int curPage, int pageSize, int totalItem) {
-        PageInfo pageInfo = new PageInfo();
-        pageInfo.setCurPage(curPage);
-        pageInfo.setPageSize(pageSize);
-        pageInfo.setTotalItem(totalItem);
-        pageInfo.setTotalPage(pageSize, totalItem);
+    public void setCode(Integer code) {
+        this.code = code;
     }
 
     public static OperStatus newSuccess() {
         return new OperStatus(GlobalStatus.SUCCESS);
     }
 
-    public static OperStatus newSuccess(String message) {
-        return new OperStatus(GlobalStatus.SUCCESS, message);
+    public static OperStatus newSuccess(String msg) {
+        return new OperStatus(GlobalStatus.SUCCESS, msg);
+    }
+
+    public static <T> OperStatus<T> newSuccess(T data) {
+        OperStatus<T> operStatus = new OperStatus<T>(GlobalStatus.SUCCESS);
+        operStatus.setData(data);
+        return operStatus;
     }
 
     public static OperStatus newError() {
@@ -113,42 +88,23 @@ public class OperStatus implements Serializable{
         return new OperStatus(GlobalStatus.PARAM_INVALID, message);
     }
 
-    public static OperStatus newServerResponse(GlobalStatus status) {
+    public static OperStatus newResultEmpty() {
+        OperStatus operStatus = new OperStatus(GlobalStatus.RESULT_EMPTY);
+        operStatus.setData(new ArrayList<>());
+        return operStatus;
+    }
+
+    public static OperStatus newResultEmpty(String message) {
+        OperStatus operStatus = new OperStatus(GlobalStatus.RESULT_EMPTY);
+        operStatus.setData(new ArrayList<>());
+        return operStatus;
+    }
+
+    public static OperStatus newOperStatus(GlobalStatus status) {
         return new OperStatus(status);
     }
 
-    public static OperStatus newServerResponse(GlobalStatus status, String message) {
+    public static OperStatus newOperStatus(GlobalStatus status, String message) {
         return new OperStatus(status, message);
     }
-
-    public class Status implements Serializable {
-
-        private static final long serialVersionUID = 5079806402898956068L;
-
-        private GlobalStatus status;
-        private String desc;
-
-        public Status (GlobalStatus status) {
-            this.status = status;
-            this.desc = status.name;
-        }
-
-        public Status (GlobalStatus status, String message) {
-            this.status = status;
-            this.desc = message;
-        }
-
-        public boolean compare(GlobalStatus input) {
-            return this.status == input;
-        }
-
-        public int getCode() {
-            return this.status.value;
-        }
-
-        public String getDesc() {
-            return desc;
-        }
-    }
-
 }

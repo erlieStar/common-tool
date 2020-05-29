@@ -6,7 +6,8 @@ public enum GlobalStatus {
     FAILED(1, "操作失败"),
     ERROR(2, "服务器出现错误"),
     RESULT_EMPTY(3, "结果为空"),
-    PARAM_INVALID(4, "请求参数非法");
+    PARAM_INVALID(4, "请求参数非法"),
+    NEED_LOGIN(5, "需要登陆");
 
     public final int value;
     public final String name;
