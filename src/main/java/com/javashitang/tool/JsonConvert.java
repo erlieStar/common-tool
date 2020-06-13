@@ -1,5 +1,6 @@
 package com.javashitang.tool;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,11 @@ public class JsonConvert {
     private static final Logger logger = LoggerFactory.getLogger(JsonConvert.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        // 反序列化时忽略没有的字段
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     /**
      * 将对象转为string
